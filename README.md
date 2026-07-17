@@ -2,18 +2,19 @@
 
 # geminicommit
 
-**AI-Powered, Conventional Commit Messages with Google Gemini**
+**AI-Powered, Conventional Commit Messages**
 
 ![Preview](./assets/Screenshot_20241112_103154.png)
 
-**geminicommit** helps you write clear, conventional, and meaningful Git commit messages automatically using Google Gemini AI. Save time, improve your commit history, and focus on what matters—your code.
+**geminicommit** helps you write clear, conventional, and meaningful Git commit messages automatically using AI. Supports **Google Gemini** and **OpenAI-compatible** APIs (including proxies like [9router](https://github.com/decolua/9router)). Save time, improve your commit history, and focus on what matters—your code.
 
 ---
 
 ## ✨ Features
 
-- **AI-Generated Commit Messages:** Let Gemini AI analyze your staged changes and suggest concise, descriptive commit messages.
-- **AI-Generated Pull Requests:** Use `gmc pr` to push your branch and open a GitHub pull request with a Gemini-generated conventional title (and body).
+- **AI-Generated Commit Messages:** Let AI analyze your staged changes and suggest concise, descriptive commit messages.
+- **AI-Generated Pull Requests:** Use `gmc pr` to push your branch and open a GitHub pull request with a conventional title (and body).
+- **Multiple AI Providers:** Supports Google Gemini and OpenAI-compatible APIs (for use with proxies like [9router](https://github.com/decolua/9router), LiteLLM, etc.).
 - **Customizable Output:** Tailor the message style and structure to fit your workflow.
 - **Conventional Commits:** Ensures messages follow best practices for readability and automation.
 - **Cross-Platform:** Works on Linux, Windows, and macOS.
@@ -21,7 +22,7 @@
 - **Automatic Push:** Push committed changes to remote repository with `--push` flag.
 - **Advanced Customization:** Fine-tune commit messages with various flags and options.
 - **Smart Issue Detection:** Automatically detects and references issue numbers from branch names.
-- **Custom API Endpoints:** Configure custom base URLs for Google Gemini API endpoints.
+- **Custom API Endpoints:** Configure custom base URLs for AI API endpoints.
 
 ---
 
@@ -37,7 +38,7 @@ go install github.com/tfkhdyt/geminicommit@latest
 # 3. Configure your API key
 gmc config set api.key <your-api-key>
 
-# 4. (Optional) Configure model and base URL
+# 4. (Optional) Configure model, provider, and base URL
 gmc config set api.model gemini-2.5-pro          # optional: change model
 gmc config set api.baseurl https://your-proxy    # optional: custom endpoint
 
@@ -48,13 +49,29 @@ git add <file>
 gmc
 ```
 
+### Using OpenAI-Compatible Provider
+
+You can use any OpenAI-compatible API endpoint, including [9router](https://github.com/decolua/9router), LiteLLM, or OpenAI directly:
+
+```sh
+# Configure OpenAI provider
+gmc config set api.provider openai
+gmc config set api.key <your-api-key>
+gmc config set api.baseurl http://localhost:20128/v1  # example: 9router
+
+# Or via flags
+gmc --provider openai --baseurl http://localhost:20128/v1 --model gpt-4o
+```
+
+With [9router](https://github.com/decolua/9router), you can route through 40+ providers with automatic fallback and token savings.
+
 ---
 
 ## ✅ Requirements
 
 - Go 1.24+ (for `go install`)
 - Git
-- Gemini API key from Google AI Studio
+- AI API key (Gemini from [Google AI Studio](https://aistudio.google.com/app/apikey), or any OpenAI-compatible provider)
 - GitHub CLI (`gh`) for `gmc pr`
 
 ---
@@ -117,7 +134,7 @@ gmc
 
 ### Basic Setup
 
-1. Get your API key from [Google AI Studio](https://aistudio.google.com/app/apikey).
+1. Get your API key from [Google AI Studio](https://aistudio.google.com/app/apikey) (for Gemini) or from your AI provider.
 2. Set your key:
 
    ```sh
@@ -130,7 +147,11 @@ gmc
 Configure additional settings using the `gmc config` command:
 
 ```sh
-# Set or change the Gemini model (default: gemini-3.5-flash)
+# Set AI provider (default: gemini, options: gemini, openai)
+gmc config set api.provider openai
+gmc config get api.provider
+
+# Set or change the AI model (default: gemini-3.5-flash)
 gmc config set api.model gemini-2.5-pro
 gmc config get api.model
 
@@ -154,9 +175,10 @@ All configuration is stored in `~/.config/geminicommit/config.toml`.
 
 ```text
 [api]
-api.key             - Gemini API key
-api.model           - Gemini model name (default: gemini-3.5-flash)
-api.baseurl         - Custom base URL for Gemini API
+api.key             - AI API key
+api.provider        - AI provider (default: gemini, options: gemini, openai)
+api.model           - AI model name (default: gemini-3.5-flash)
+api.baseurl         - Custom base URL for AI API
 
 [commit]
 commit.language     - Language for commit messages (default: english)
@@ -180,6 +202,7 @@ The configuration file uses TOML format:
 ```toml
 [api]
 key = "your-api-key"
+provider = "gemini"               # or "openai"
 model = "gemini-3.5-flash"
 baseurl = "https://your-proxy.example.com"  # optional
 ```

@@ -12,7 +12,7 @@ import (
 )
 
 var ValidConfigKeys = map[string]bool{
-	"api.key": true, "api.model": true, "api.baseurl": true,
+	"api.key": true, "api.provider": true, "api.model": true, "api.baseurl": true,
 	"commit.language": true, "commit.max_length": true,
 	"behavior.stage_all": true, "behavior.auto_select": true,
 	"behavior.no_confirm": true, "behavior.quiet": true,
@@ -26,9 +26,10 @@ var setCmd = &cobra.Command{
 	Long: `Set a configuration value.
 
 [api]
-  api.key             - Gemini API key
-  api.model           - Gemini model name (default: gemini-3.5-flash)
-  api.baseurl         - Custom base URL for Gemini API
+  api.key             - API key
+  api.provider        - AI provider (default: gemini, options: gemini, openai)
+  api.model           - AI model name (default: gemini-3.5-flash)
+  api.baseurl         - Custom base URL for AI API
 
 [commit]
   commit.language     - Language for commit messages (default: english)

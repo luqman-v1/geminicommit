@@ -9,15 +9,14 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
+	"github.com/tfkhdyt/geminicommit/internal/service"
 	"github.com/tfkhdyt/geminicommit/internal/usecase"
 )
 
-type RootHandler struct {
-	useCase *usecase.RootUsecase
-}
+type RootHandler struct{}
 
 func NewRootHandler() *RootHandler {
-	return &RootHandler{useCase: usecase.NewRootUsecase()}
+	return &RootHandler{}
 }
 
 func (r *RootHandler) RootCommand(
@@ -35,6 +34,7 @@ func (r *RootHandler) RootCommand(
 	language *string,
 	issue *string,
 	noVerify *bool,
+	provider *string,
 	customBaseUrl *string,
 ) func(*cobra.Command, []string) {
 	return func(_ *cobra.Command, _ []string) {
@@ -48,12 +48,19 @@ func (r *RootHandler) RootCommand(
 				"Error: API key is still empty, run this command to set your API key",
 			)
 			fmt.Print("\n")
-			color.New(color.Bold).Print("geminicommit config key set ")
-			color.New(color.Italic, color.Bold).Print("api_key\n\n")
+			color.New(color.Bold).Print("gmc config set ")
+			color.New(color.Italic, color.Bold).Print("api.key YOUR_KEY\n\n")
 			os.Exit(1)
 		}
 
-		err := r.useCase.RootCommand(ctx, apiKey, stageAll, autoSelect, userContext, model, noConfirm, quiet, push, dryRun, showDiff, maxLength, language, issue, noVerify, customBaseUrl)
+		aiService, err := service.NewAIService(ctx, *provider, apiKey, customBaseUrl)
+		if err != nil {
+			fmt.Printf("Error: %v\n", err)
+			os.Exit(1)
+		}
+
+		rootUsecase := usecase.NewRootUsecase(aiService)
+		err = rootUsecase.RootCommand(ctx, stageAll, autoSelect, userContext, model, noConfirm, quiet, push, dryRun, showDiff, maxLength, language, issue, noVerify)
 		cobra.CheckErr(err)
 	}
 }

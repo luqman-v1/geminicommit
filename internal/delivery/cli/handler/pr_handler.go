@@ -12,15 +12,14 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
+	"github.com/tfkhdyt/geminicommit/internal/service"
 	"github.com/tfkhdyt/geminicommit/internal/usecase"
 )
 
-type PRHandler struct {
-	useCase *usecase.PRUsecase
-}
+type PRHandler struct{}
 
 func NewPRHandler() *PRHandler {
-	return &PRHandler{useCase: usecase.NewPRUsecase()}
+	return &PRHandler{}
 }
 
 func (p *PRHandler) PRCommand(
@@ -34,6 +33,7 @@ func (p *PRHandler) PRCommand(
 	language *string,
 	userContext *string,
 	draft *bool,
+	provider *string,
 	customBaseUrl *string,
 ) func(*cobra.Command, []string) {
 	return func(_ *cobra.Command, _ []string) {
@@ -47,14 +47,20 @@ func (p *PRHandler) PRCommand(
 				"Error: API key is still empty, run this command to set your API key",
 			)
 			fmt.Print("\n")
-			color.New(color.Bold).Print("geminicommit config key set ")
-			color.New(color.Italic, color.Bold).Print("api_key\n\n")
+			color.New(color.Bold).Print("gmc config set ")
+			color.New(color.Italic, color.Bold).Print("api.key YOUR_KEY\n\n")
 			os.Exit(1)
 		}
 
-		err := p.useCase.PRCommand(
+		aiService, err := service.NewAIService(ctx, *provider, apiKey, customBaseUrl)
+		if err != nil {
+			fmt.Printf("Error: %v\n", err)
+			os.Exit(1)
+		}
+
+		prUsecase := usecase.NewPRUsecase(aiService)
+		err = prUsecase.PRCommand(
 			ctx,
-			apiKey,
 			model,
 			noConfirm,
 			quiet,
@@ -64,7 +70,6 @@ func (p *PRHandler) PRCommand(
 			language,
 			userContext,
 			draft,
-			customBaseUrl,
 		)
 		cobra.CheckErr(err)
 	}

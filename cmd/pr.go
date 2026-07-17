@@ -33,6 +33,7 @@ var prCmd = &cobra.Command{
 		&language,
 		&userContext,
 		&draft,
+		&provider,
 		&customBaseUrl,
 	),
 }
@@ -53,7 +54,9 @@ func init() {
 	prCmd.Flags().
 		BoolVarP(&quiet, "quiet", "q", quiet, "suppress output (only works with --yes)")
 	prCmd.Flags().
-		StringVarP(&model, "model", "m", service.DefaultModel, "google gemini model to use")
+		StringVarP(&model, "model", "m", service.DefaultModel, "AI model to use")
+	prCmd.Flags().
+		StringVarP(&provider, "provider", "", service.DefaultProvider, "AI provider to use (gemini, openai)")
 	prCmd.Flags().
 		BoolVarP(&dryRun, "dry-run", "", dryRun, "run the command without making any changes")
 	prCmd.Flags().

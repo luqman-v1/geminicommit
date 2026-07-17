@@ -3,32 +3,29 @@ package usecase
 import (
 	"context"
 	"fmt"
-	"os"
 
 	"github.com/charmbracelet/huh/spinner"
 	"github.com/fatih/color"
-	"google.golang.org/genai"
 
 	"github.com/tfkhdyt/geminicommit/internal/service"
 )
 
 type RootUsecase struct {
 	gitService         *service.GitService
-	geminiService      *service.GeminiService
+	aiService          service.AIService
 	interactionService *service.InteractionService
 }
 
-func NewRootUsecase() *RootUsecase {
+func NewRootUsecase(aiService service.AIService) *RootUsecase {
 	return &RootUsecase{
 		gitService:         service.NewGitService(),
-		geminiService:      service.NewGeminiService(),
+		aiService:          aiService,
 		interactionService: service.NewInteractionService(),
 	}
 }
 
 func (r *RootUsecase) RootCommand(
 	ctx context.Context,
-	apiKey string,
 	stageAll *bool,
 	autoSelect *bool,
 	userContext *string,
@@ -42,14 +39,7 @@ func (r *RootUsecase) RootCommand(
 	language *string,
 	issue *string,
 	noVerify *bool,
-	customBaseUrl *string,
 ) error {
-	client, err := service.NewGeminiClient(ctx, apiKey, customBaseUrl)
-	if err != nil {
-		fmt.Printf("Error getting gemini client: %v", err)
-		os.Exit(1)
-	}
-
 	// Perform git verifications
 	if err := r.gitService.VerifyGitInstallation(); err != nil {
 		return err
@@ -96,7 +86,7 @@ func (r *RootUsecase) RootCommand(
 	var initialCommitMessage string
 	if *opts.AutoSelect {
 		// Auto flow: Select files with AI and generate commit message in one request
-		autoResult, err := r.handleAutoFlow(client, ctx, data, opts)
+		autoResult, err := r.handleAutoFlow(ctx, data, opts)
 		if err != nil {
 			return err
 		}
@@ -121,7 +111,7 @@ func (r *RootUsecase) RootCommand(
 		// If we don't have a message yet (non-auto mode) or user wants to regenerate, generate one
 		if message == "" {
 			var err error
-			message, err = r.geminiService.GenerateCommitMessage(client, ctx, data, opts)
+			message, err = r.aiService.GenerateCommitMessage(ctx, data, opts)
 			if err != nil {
 				return err
 			}
@@ -159,14 +149,13 @@ type AutoFlowResult struct {
 
 // handleAutoFlow implements the complete auto flow as per the flowchart
 func (r *RootUsecase) handleAutoFlow(
-	client *genai.Client,
 	ctx context.Context,
 	data *service.PreCommitData,
 	opts *service.CommitOptions,
 ) (*AutoFlowResult, error) {
 	// Step 1: Detect all changes in working directory (already done in calling function)
 	// Step 2: Send diff to AI for file selection AND commit message generation
-	// Extract common logic into a closure that captures client, ctx, data, and opts
+	// Extract common logic into a closure that captures ctx, data, and opts
 	selectFilesAndGenerateCommit := func() ([]string, string, error) {
 		selectOpts := &service.SelectFilesAndGenerateCommitOptions{
 			UserContext:  opts.UserContext,
@@ -176,8 +165,7 @@ func (r *RootUsecase) handleAutoFlow(
 			Language:     opts.Language,
 			Issue:        &data.Issue,
 		}
-		selectedFiles, commitMessage, err := r.geminiService.SelectFilesAndGenerateCommit(
-			client,
+		selectedFiles, commitMessage, err := r.aiService.SelectFilesAndGenerateCommit(
 			ctx,
 			data.Diff,
 			selectOpts,

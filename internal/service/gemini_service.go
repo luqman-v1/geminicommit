@@ -27,6 +27,7 @@ var combinedPrompt string
 
 type GeminiService struct {
 	systemPrompt string
+	client       *genai.Client
 }
 
 // CommitOptions contains options for commit generation
@@ -93,6 +94,16 @@ func NewGeminiService() *GeminiService {
 	return &GeminiService{systemPrompt: systemPrompt}
 }
 
+// NewGeminiAIService creates a GeminiService that implements AIService.
+// The client is owned internally.
+func NewGeminiAIService(ctx context.Context, apiKey string, customBaseUrl *string) (*GeminiService, error) {
+	client, err := NewGeminiClient(ctx, apiKey, customBaseUrl)
+	if err != nil {
+		return nil, err
+	}
+	return &GeminiService{systemPrompt: systemPrompt, client: client}, nil
+}
+
 func (g *GeminiService) getModelTemperature(modelName string) float32 {
 	if modelName == Gemini3ProPreview || modelName == Gemini3FlashPreview {
 		return 1.0
@@ -100,9 +111,9 @@ func (g *GeminiService) getModelTemperature(modelName string) float32 {
 	return 0.2
 }
 
-// GenerateCommitMessage creates a commit message using AI analysis with UI feedback
+// GenerateCommitMessage implements AIService interface.
+// Creates a commit message using AI analysis with UI feedback.
 func (g *GeminiService) GenerateCommitMessage(
-	client *genai.Client,
 	ctx context.Context,
 	data *PreCommitData,
 	opts *CommitOptions,
@@ -113,13 +124,13 @@ func (g *GeminiService) GenerateCommitMessage(
 		if err := spinner.New().
 			Title(fmt.Sprintf("AI is analyzing your changes. (Model: %s)", *opts.Model)).
 			Action(func() {
-				g.analyzeToChannel(client, ctx, data, opts, messageChan)
+				g.analyzeToChannel(g.client, ctx, data, opts, messageChan)
 			}).
 			Run(); err != nil {
 			return "", err
 		}
 	} else {
-		g.analyzeToChannel(client, ctx, data, opts, messageChan)
+		g.analyzeToChannel(g.client, ctx, data, opts, messageChan)
 	}
 
 	message := <-messageChan
@@ -393,9 +404,9 @@ Here's the code diff:
 	return validFiles, nil
 }
 
-// SelectFilesAndGenerateCommit combines file selection and commit message generation in a single AI request
+// SelectFilesAndGenerateCommit implements AIService interface.
+// Combines file selection and commit message generation in a single AI request.
 func (g *GeminiService) SelectFilesAndGenerateCommit(
-	geminiClient *genai.Client,
 	ctx context.Context,
 	diff string,
 	opts *SelectFilesAndGenerateCommitOptions,
@@ -458,7 +469,7 @@ Requirements:
 	}
 
 	temp := g.getModelTemperature(*opts.ModelName)
-	resp, err := geminiClient.Models.GenerateContent(ctx, *opts.ModelName, genai.Text(prompt), &genai.GenerateContentConfig{
+	resp, err := g.client.Models.GenerateContent(ctx, *opts.ModelName, genai.Text(prompt), &genai.GenerateContentConfig{
 		Temperature: &temp,
 		SafetySettings: defaultSafetySettings,
 		SystemInstruction: &genai.Content{

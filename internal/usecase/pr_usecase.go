@@ -5,8 +5,6 @@ package usecase
 
 import (
 	"context"
-	"fmt"
-	"os"
 
 	"github.com/fatih/color"
 
@@ -15,21 +13,20 @@ import (
 
 type PRUsecase struct {
 	gitService         *service.GitService
-	geminiService      *service.GeminiService
+	aiService          service.AIService
 	interactionService *service.InteractionService
 }
 
-func NewPRUsecase() *PRUsecase {
+func NewPRUsecase(aiService service.AIService) *PRUsecase {
 	return &PRUsecase{
 		gitService:         service.NewGitService(),
-		geminiService:      service.NewGeminiService(),
+		aiService:          aiService,
 		interactionService: service.NewInteractionService(),
 	}
 }
 
 func (p *PRUsecase) PRCommand(
 	ctx context.Context,
-	apiKey string,
 	model *string,
 	noConfirm *bool,
 	quiet *bool,
@@ -39,14 +36,7 @@ func (p *PRUsecase) PRCommand(
 	language *string,
 	userContext *string,
 	draft *bool,
-	customBaseUrl *string,
 ) error {
-	client, err := service.NewGeminiClient(ctx, apiKey, customBaseUrl)
-	if err != nil {
-		fmt.Printf("Error getting gemini client: %v", err)
-		os.Exit(1)
-	}
-
 	if err := p.gitService.VerifyGitInstallation(); err != nil {
 		return err
 	}
@@ -76,7 +66,7 @@ func (p *PRUsecase) PRCommand(
 	}
 
 	for {
-		message, err := p.geminiService.GenerateCommitMessage(client, ctx, data, opts)
+		message, err := p.aiService.GenerateCommitMessage(ctx, data, opts)
 		if err != nil {
 			return err
 		}

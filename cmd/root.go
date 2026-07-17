@@ -23,6 +23,7 @@ var (
 	autoSelect    = false
 	userContext   string
 	model         string
+	provider      string
 	noConfirm     = false
 	quiet         = false
 	push          = false
@@ -63,6 +64,7 @@ var RootCmd = &cobra.Command{
 		&language,
 		&issue,
 		&noVerify,
+		&provider,
 		&customBaseUrl,
 	),
 }
@@ -99,7 +101,9 @@ func init() {
 	RootCmd.Flags().
 		StringVarP(&userContext, "context", "c", "", "additional context to be added to the commit message")
 	RootCmd.Flags().
-		StringVarP(&model, "model", "m", service.DefaultModel, "google gemini model to use")
+		StringVarP(&model, "model", "m", service.DefaultModel, "AI model to use")
+	RootCmd.Flags().
+		StringVarP(&provider, "provider", "", service.DefaultProvider, "AI provider to use (gemini, openai)")
 	RootCmd.Flags().
 		BoolVarP(&dryRun, "dry-run", "", dryRun, "run the command without making any changes")
 	RootCmd.Flags().
@@ -117,6 +121,7 @@ func init() {
 
 	// Bind flags to viper config keys
 	// [api]
+	viper.BindPFlag("api.provider", RootCmd.Flags().Lookup("provider"))
 	viper.BindPFlag("api.model", RootCmd.Flags().Lookup("model"))
 	viper.BindPFlag("api.baseurl", RootCmd.Flags().Lookup("baseurl"))
 	// [commit]
@@ -138,6 +143,9 @@ func applyConfigDefaults(cmd *cobra.Command) {
 	flags := cmd.Flags()
 
 	// [api]
+	if !flags.Changed("provider") && viper.IsSet("api.provider") {
+		provider = viper.GetString("api.provider")
+	}
 	if !flags.Changed("model") && viper.IsSet("api.model") {
 		model = viper.GetString("api.model")
 	}

@@ -10,7 +10,11 @@ permissions:
 
 jobs:
   copr-build:
-    if: github.repository_owner == 'luqman-v1'
+    if: |
+      github.repository_owner == 'luqman-v1' &&
+      secrets.COPR_LOGIN != '' &&
+      secrets.COPR_USERNAME != '' &&
+      secrets.COPR_TOKEN != ''
     runs-on: ubuntu-latest
     env:
       COPR_LOGIN: ${{ secrets.COPR_LOGIN }}

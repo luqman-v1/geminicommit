@@ -7,7 +7,11 @@ on:
       - PKGBUILD
 jobs:
   aur-publish:
-    if: github.repository_owner == 'luqman-v1'
+    if: |
+      github.repository_owner == 'luqman-v1' &&
+      secrets.AUR_USERNAME != '' &&
+      secrets.AUR_EMAIL != '' &&
+      secrets.AUR_SSH_PRIVATE_KEY != ''
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

@@ -6,7 +6,7 @@ Summary:        AI-powered conventional commit messages with Google Gemini
 %global debug_package %{nil}
 
 License:        GPL-3.0-or-later
-URL:            https://github.com/tfkhdyt/geminicommit
+URL:            https://github.com/luqman-v1/geminicommit
 Source0:        %{url}/archive/refs/tags/v%{version}.tar.gz
 
 BuildRequires:  golang

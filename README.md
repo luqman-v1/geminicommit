@@ -30,7 +30,7 @@
 
 ```sh
 # 1. Install (Go required)
-go install github.com/tfkhdyt/geminicommit@latest
+go install github.com/luqman-v1/geminicommit@latest
 
 # 2. Get your Gemini API key
 #    https://aistudio.google.com/app/apikey
@@ -97,11 +97,11 @@ With [9router](https://github.com/decolua/9router), you can route through 40+ pr
     ```
 
   ```sh
-  go install github.com/tfkhdyt/geminicommit@latest
+  go install github.com/luqman-v1/geminicommit@latest
   ```
 
 - **Standalone Binary:**
-  Download from the [releases page](https://github.com/tfkhdyt/geminicommit/releases) and move to a directory in your `PATH`:
+  Download from the [releases page](https://github.com/luqman-v1/geminicommit/releases) and move to a directory in your `PATH`:
 
   - Linux: `$HOME/.local/bin/` or `/usr/local/bin/`
   - Windows: `%LocalAppData%\Programs\`
@@ -116,7 +116,7 @@ With [9router](https://github.com/decolua/9router), you can route through 40+ pr
 - **Fedora (Copr):**
 
   ```sh
-  sudo dnf copr enable tfkhdyt/geminicommit
+  sudo dnf copr enable luqman-v1/geminicommit
   sudo dnf install geminicommit
   ```
 

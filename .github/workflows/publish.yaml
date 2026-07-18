@@ -7,7 +7,7 @@ on:
       - PKGBUILD
 jobs:
   aur-publish:
-    if: github.repository_owner == 'tfkhdyt'
+    if: github.repository_owner == 'luqman-v1'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

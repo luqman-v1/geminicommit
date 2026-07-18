@@ -10,7 +10,7 @@ permissions:
 
 jobs:
   copr-build:
-    if: github.repository_owner == 'tfkhdyt'
+    if: github.repository_owner == 'luqman-v1'
     runs-on: ubuntu-latest
     env:
       COPR_LOGIN: ${{ secrets.COPR_LOGIN }}

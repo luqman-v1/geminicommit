@@ -12,9 +12,9 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
-	"github.com/tfkhdyt/geminicommit/cmd/config"
-	"github.com/tfkhdyt/geminicommit/internal/delivery/cli/handler"
-	"github.com/tfkhdyt/geminicommit/internal/service"
+	"github.com/luqman-v1/geminicommit/cmd/config"
+	"github.com/luqman-v1/geminicommit/internal/delivery/cli/handler"
+	"github.com/luqman-v1/geminicommit/internal/service"
 )
 
 var (

@@ -7,7 +7,7 @@ import (
 	"github.com/charmbracelet/huh/spinner"
 	"github.com/fatih/color"
 
-	"github.com/tfkhdyt/geminicommit/internal/service"
+	"github.com/luqman-v1/geminicommit/internal/service"
 )
 
 type RootUsecase struct {

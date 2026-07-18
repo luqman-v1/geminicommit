@@ -9,8 +9,8 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
-	"github.com/tfkhdyt/geminicommit/internal/service"
-	"github.com/tfkhdyt/geminicommit/internal/usecase"
+	"github.com/luqman-v1/geminicommit/internal/service"
+	"github.com/luqman-v1/geminicommit/internal/usecase"
 )
 
 type RootHandler struct{}
